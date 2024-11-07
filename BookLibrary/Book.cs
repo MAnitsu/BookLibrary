@@ -10,6 +10,7 @@
             private string Publisher;
             private int PageNr;
 
+            // created multiple constructors so only the title is mandatory and the other details are optional
             public Book(string title)
             {
                 Title = title;
