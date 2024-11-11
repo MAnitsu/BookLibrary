@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static BookLibrary.Program;
@@ -30,8 +31,13 @@ namespace BookLibrary
                     // action for the help command
                     if (input.Equals("help"))
                     {
-                        Console.WriteLine(Help());
+                        // restarts the loop with the help message
                         continue;
+                    }
+                    // action for the exit command
+                    else if (input.Equals("exit"))
+                    {
+                        Environment.Exit(0);
                     }
                     // action for the addbook command
                     else if (input.Equals("addbook"))
@@ -87,6 +93,7 @@ namespace BookLibrary
                     }
                 }
             }
+            // if the txt file that stores the books is missing show a friendly message to the user
             else
             {
                 Console.WriteLine("The \"BooksDisplay.txt\" file is missing, please create one");
@@ -99,6 +106,7 @@ namespace BookLibrary
                     "Help - displays all the commands\n" +
                     "AddBook - adds a book to the library, \n" +
                     "SeeLibary - displays all the books found in the library\n" +
+                    "Exit - closes the console\n" +
                     "Try entering one of the commands bellow: ");
         }
 
