@@ -11,6 +11,7 @@ using static BookLibrary.Program;
 
 namespace BookLibrary
 {
+    // TODO: rearange the numbers for each book if a book from the middle of the library is deleted
     internal partial class Program
     {
         static void Main(string[] args)
@@ -128,9 +129,6 @@ namespace BookLibrary
                             Console.WriteLine("\nThe command entered does not exist. Try again!\n");
                             continue;
                         }
-                        // TODO: convert the dictionary back to string after deleting/editing
-                        // and insert it back into the BookDisplay.txt after erasing the old data
-                        // use this function after editing or deleting
 
                         // insert the retry message so the user can start over
                         string actionRetry = RetryMessage();
