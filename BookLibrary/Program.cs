@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,19 +53,19 @@ namespace BookLibrary
                         // add the book to the library - if there is any book added already use a new line
                         if (bookCount == 0)
                         {
-                            File.AppendAllText(path, addBookInput);
+                            File.AppendAllText(path, (bookCount + 1) + "." + addBookInput);
                         }
                         else
                         {
-                            File.AppendAllText(path, Environment.NewLine + addBookInput);
+                            File.AppendAllText(path, Environment.NewLine + (bookCount + 1) + "." + addBookInput);
                         }
                         // increment the counter for the books so the app will know when to add new lines in the txt file
                         bookCount += 1;
 
                         // insert the retry message so the user can start over
-                        string retry = RetryMessage();
+                        string action = RetryMessage();
 
-                        if (retry.Equals("y"))
+                        if (action.Equals("y"))
                         {
                             Console.WriteLine();
                             continue;
@@ -75,10 +77,65 @@ namespace BookLibrary
                         // display the book library
                         Console.WriteLine("\n" + File.ReadAllText(path) + "\n");
 
-                        // insert the retry message so the user can start over
-                        string retry = RetryMessage();
+                        // insert the message asking the user if they want to edit/delete an entry
+                        string action = EditDelete();
 
-                        if (retry.Equals("y"))
+                        // convert the contents of the BookLibrary.txt to a library
+                        var myDictionary = DictionaryConvertor(File.ReadAllText(path));
+
+                        // exit the loop if they don't want to edit/delete
+                        if (action.Equals("n"))
+                        {
+                            break;
+                        }
+                        // perform edit action if they want to edit
+                        else if (action.Equals("edit"))
+                        {
+                            // ask the user which line they want modified
+                            Console.Write("\nWhich line would you like to edit? ");
+                            string lineToEdit = Console.ReadLine();
+
+                            // ask the user what to be inserted in the edited line
+                            Console.Write("Insert a title, author, genre, publisher or page number. ");
+                            string textToEdit = Console.ReadLine();
+
+                            // edit per key-value pair of the dictionary
+                            myDictionary[lineToEdit] = textToEdit;
+                         
+                            // Erase the file content by overwriting it with an empty string
+                            File.WriteAllText(path, string.Empty);
+                            // insert the new edited string in the file
+                            File.AppendAllText(path, StringConvertor(myDictionary));
+                        }
+                        // perform delete action if they want to delete
+                        else if (action.Equals("delete"))
+                        {
+                            // ask the user which line they want modified
+                            Console.Write("Which line would you like to delete? ");
+                            string lineToDelete = Console.ReadLine();
+
+                            // delete per key-value pair of the dictionary
+                            myDictionary.Remove(lineToDelete);
+
+                            // Erase the file content by overwriting it with an empty string
+                            File.WriteAllText(path, string.Empty);
+                            // insert the new edited string in the file
+                            File.AppendAllText(path, StringConvertor(myDictionary));
+                        }
+                        else
+                        {
+                            // if the command entered is none of the correct ones, start over
+                            Console.WriteLine("\nThe command entered does not exist. Try again!\n");
+                            continue;
+                        }
+                        // TODO: convert the dictionary back to string after deleting/editing
+                        // and insert it back into the BookDisplay.txt after erasing the old data
+                        // use this function after editing or deleting
+
+                        // insert the retry message so the user can start over
+                        string actionRetry = RetryMessage();
+
+                        if (actionRetry.Equals("y"))
                         {
                             Console.WriteLine();
                             continue;
@@ -109,12 +166,53 @@ namespace BookLibrary
                     "Exit - closes the console\n" +
                     "Try entering one of the commands bellow: ");
         }
-
+        // a function used for the retry message
         static string RetryMessage()
         {
-            Console.WriteLine("Would you like to try another command? y/n");
+            Console.WriteLine("\nWould you like to try another command? y/n");
             string inputRetry = Console.ReadLine().ToLower();
             return inputRetry;
+        }
+        
+        static string EditDelete()
+        {
+            Console.WriteLine("Would you like to edit or delete any entry from the library? edit/delete/n");
+            string inputRetry = Console.ReadLine().ToLower();
+            return inputRetry;
+        }
+        // a function that converts the text from the library to a dictionary so I can delte/edit it
+        static Dictionary<string, string> DictionaryConvertor(string input)
+        {
+            // initialize the dictionary
+            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            // split the text into key-value pairs based on new lines
+            string[] pairs = input.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string pair in pairs)
+            {
+                // split each pair into key and value based on a dot
+                string[] keyValue = pair.Split('.');
+                if (keyValue.Length == 2) // ensure there are exactly 2 parts
+                {
+                    string key = keyValue[0];
+                    string value = keyValue[1];
+
+                    // add the key-value pair to the dictionary
+                    dictionary[key] = value;
+                }
+                else
+                {
+                    Console.WriteLine($"Invalid pair: {pair}");
+                }
+            }
+
+            return dictionary;
+        }
+        // a function that take this dictionary as a parameter and converts it back to a string format,
+        // with each key-value pair being on a separate row so I can add it back to the library
+        static string StringConvertor(Dictionary<string, string> dictionary)
+        {
+            return string.Join(Environment.NewLine, dictionary.Select(kv => kv.Key + "." + kv.Value));
         }
     }
 }
