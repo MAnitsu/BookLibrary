@@ -151,7 +151,18 @@ namespace BookLibrary
             // if the txt file that stores the books is missing show a friendly message to the user
             else
             {
-                Console.WriteLine("The \"BooksDisplay.txt\" file is missing, please create one");
+                Console.WriteLine("The \"BooksDisplay.txt\" file is missing, do you want to create it? y/n");
+                string answer = Console.ReadLine().ToLower();
+
+                if (answer.Equals("y"))
+                {
+                    File.Create(path);
+                    Console.WriteLine("\nFile created successfully, please restart the program.");
+                }
+                else
+                {
+                    Console.WriteLine("\nExiting the program...");
+                }
             }
         }
 
